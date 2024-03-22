@@ -1,4 +1,4 @@
-// This app is loosly based on code from https://github.com/greenroach/express-ts-template, licensed under the MIT license.
+// This app is loosely based on https://github.com/greenroach/express-ts-template, MIT licensed.
 
 import { app } from "./app";
 

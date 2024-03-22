@@ -15,11 +15,7 @@ export const app = express();
 app.set("port", process.env.PORT || 3000);
 
 app.use(logger("common"));
-app.use(
-    bodyParser.json({
-        limit: process.env.JSON_SIZE_LIMIT || "5mb",
-    })
-);
+app.use(bodyParser.json({ limit: process.env.JSON_SIZE_LIMIT || "5mb" }));
 
 // CORS
 const supportedOrigins = process.env.CORS_ORIGINS?.split(",") || ["*"];
