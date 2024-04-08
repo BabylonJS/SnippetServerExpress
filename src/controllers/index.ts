@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { generateSnippetId, getDataLayer } from "../data/dataLayer";
-import { Snippet, SnippetRequest } from "../data/interfaces";
+import { generateSnippetId, getDataLayer } from "../dataLayer/dataLayer";
+import { Snippet, SnippetRequest } from "../dataLayer/interfaces";
 
 export const getSnippet = async (req: Request, res: Response): Promise<void> => {
     const dataLayer = await getDataLayer();
