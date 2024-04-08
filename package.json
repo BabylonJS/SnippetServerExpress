@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Babylon.js snippet server implementation, based on Express.js",
-  "main": "index.js",
+  "main": "./dist/server.js",
   "scripts": {
     "start": "npm run serve",
     "build": "npm run build-ts",
