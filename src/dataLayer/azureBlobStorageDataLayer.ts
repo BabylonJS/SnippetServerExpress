@@ -1,11 +1,10 @@
 import type { SnippetStorageService, Snippet } from "./interfaces";
-// import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient, StorageSharedKeyCredential } from "@azure/storage-blob";
 // this is a singleton that is created once and used throughout the application
 const AzureBlobStorageService = (): SnippetStorageService => {
     console.log("Azure Blob storage init");
 
-    const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME || "test"; // todo - remove test
+    const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
     if (!accountName) throw Error("Azure Storage accountName not found");
 
     const blobServiceClient = new BlobServiceClient(
@@ -13,7 +12,7 @@ const AzureBlobStorageService = (): SnippetStorageService => {
         new StorageSharedKeyCredential(accountName, process.env.AZURE_STORAGE_ACCOUNT_KEY || "")
     );
 
-    const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "snippets"; // todo - remove string
+    const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "snippets";
     if (!containerName) throw Error("Azure Storage containerName not found");
 
     const containerClient = blobServiceClient.getContainerClient(containerName);
@@ -46,14 +45,10 @@ const AzureBlobStorageService = (): SnippetStorageService => {
             return parseInt(metadata.version) + 1;
         },
         saveSnippet: async (snippet: Snippet): Promise<void> => {
-            // if there is no snippet id, generate one. 6 numbers or letters, random
-            // check if the snippet id blob exists, and get the version if it is. If it isn't, create it, set version to 0
             // get the snippet id blob metadata object
-            const version = snippet.version; /* ?? (await service.getNextVersion(snippet.id)); */
-            // increment the version
+            const version = snippet.version;
             const blobName = `${snippet.id}/${snippet.version}`;
             const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-            snippet.version = version;
             const snippetAsString = JSON.stringify(snippet);
             // store the payload as a blob if it doesn't exist
             if (!(await blockBlobClient.exists())) {

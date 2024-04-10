@@ -5,7 +5,7 @@
   "description": "Babylon.js snippet server implementation, based on Express.js",
   "main": "./dist/server.js",
   "scripts": {
-    "start": "npm run serve",
+    "start": "npm run build && npm run serve",
     "build": "npm run build-ts",
     "serve": "node dist/server.js",
     "test": "jest --coverage=false --verbose",

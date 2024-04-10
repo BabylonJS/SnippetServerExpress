@@ -8,8 +8,11 @@ dotenv.config();
 
 // Routes
 import { index } from "./routes/index";
+import { populateDataLayers } from "./dataLayer/dataLayer";
 // Create Express server
 export const app = express();
+
+populateDataLayers();
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);

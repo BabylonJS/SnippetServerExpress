@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/c5c78408-1e3d-40ab-a7ff-d55bc2c2d38a/resourceGroups/babylonjssnippetsnew_group/providers/Microsoft.Web/sites/babylonjssnippetsnew",
+    "appService.deploySubpath": "."
+}
