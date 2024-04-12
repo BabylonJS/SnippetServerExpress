@@ -48,9 +48,17 @@ export async function searchSnippets(query: string) {
 }
 
 async function addSnippetItem(snippet: Snippet) {
+    // skip indexing if the snippet is more than 200kb in size
+    if (snippet.jsonPayload.length > (process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE ? +process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE : 200000)) {
+        console.log("skipping indexing snippet", snippet.id, snippet.version);
+        return;
+    }
+    console.log("indexing snippet", snippet.id, snippet.version);
     const result = await fetch(getUrl("index"), {
         // Adding method type
         method: "POST",
+
+        signal: AbortSignal.timeout(4000),
 
         // Adding body or contents to send
         body: JSON.stringify({
@@ -66,8 +74,8 @@ async function addSnippetItem(snippet: Snippet) {
                     description: snippet.description,
                     tags: snippet.tags.split(",").map((tag) => tag.trim()),
                     date: new Date(snippet.date),
-                    isWorking: snippet.metadata?.isWorking || false,
-                    fromDoc: snippet.metadata?.isFromDocs || false,
+                    // isWorking: snippet.metadata?.isWorking || false,
+                    // fromDoc: snippet.metadata?.isFromDocs || false,
                 },
             ],
         }),
@@ -77,8 +85,10 @@ async function addSnippetItem(snippet: Snippet) {
     });
 
     if (!result.ok) {
-        console.log(await result.json());
+        console.log("Error", await result.text());
         throw new Error("error indexing snippet");
+    } else {
+        console.log("indexed snippet", snippet.id, snippet.version);
     }
 }
 
@@ -184,11 +194,19 @@ export const clearIndex = async (isApi = false, doNotDelete: string[] = []) => {
 const processJsonPayload = (jsonPayload: string) => {
     try {
         const payload = JSON.parse(jsonPayload);
+        if (!payload.code) throw new Error("no code in snippet");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const updated: any = {};
         Object.keys(payload).forEach((key) => {
+            if (key !== "code") return;
             const code = payload[key];
-            if (!code) return;
+            if (!code) {
+                console.log("no code in snippet");
+                return;
+            }
             // remove base64 strings
-            let processed: string = code.replace(/([0-9a-zA-Z+/]{1})*(([0-9a-zA-Z+/]{40}==)|([0-9a-zA-Z+/]{40}=))/gm, "REDACTED");
+            let processed: string = code.replace(/([0-9a-zA-Z+/]{100})/gm, "");
+            processed = processed.replace(/([0-9a-zA-Z+/]{1})*(([0-9a-zA-Z+/]{40}==)|([0-9a-zA-Z+/]{40}=))/gm, "");
             // remove all references to BABYLON
             processed = processed.replace(/BABYLON\./gm, "");
             // round all numbers to 2 decimal places
@@ -204,9 +222,9 @@ const processJsonPayload = (jsonPayload: string) => {
             // improve tokenization by removing dots in code, i.e. scene.meshes -> scene meshes
             // only remove dots between two letters to avoid tokenizing integers only
             processed = processed.replace(/([a-zA-Z])\.([a-zA-Z])/gm, "$1 $2");
-            payload[key] = processed;
+            updated[key] = processed;
         });
-        return JSON.stringify(payload);
+        return JSON.stringify(updated);
     } catch (e) {
         throw new Error("error parsing json, skipping");
     }

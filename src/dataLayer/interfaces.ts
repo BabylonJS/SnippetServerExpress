@@ -39,6 +39,7 @@ export interface SnippetRequest {
     tags: string;
     id?: string;
     metadata?: SnippetMetadata;
+    date?: string;
 }
 
 export interface Snippet {
@@ -55,7 +56,7 @@ export interface Snippet {
 
 export interface SnippetStorageService {
     getSnippet: (id: string, version?: number) => Promise<Snippet>;
-    saveSnippet: (snippet: Snippet) => Promise<void>;
+    saveSnippet: (snippet: Snippet, update?: boolean) => Promise<void>;
     getNextVersion: (id: string) => Promise<number>;
     processSnippet?: (snippetRequest: Snippet) => Snippet;
 }

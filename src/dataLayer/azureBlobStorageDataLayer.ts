@@ -44,7 +44,7 @@ const AzureBlobStorageService = (): SnippetStorageService => {
             // get the version from the metadata
             return parseInt(metadata.version) + 1;
         },
-        saveSnippet: async (snippet: Snippet): Promise<void> => {
+        saveSnippet: async (snippet: Snippet, update?: boolean): Promise<void> => {
             // get the snippet id blob metadata object
             const version = snippet.version;
             const blobName = `${snippet.id}/${snippet.version}`;
@@ -54,7 +54,11 @@ const AzureBlobStorageService = (): SnippetStorageService => {
             if (!(await blockBlobClient.exists())) {
                 await blockBlobClient.upload(snippetAsString, snippetAsString.length);
             } else {
-                throw Error("Snippet already exists");
+                if (update) {
+                    console.log("Snippet already exists");
+                } else {
+                    throw Error("Snippet already exists");
+                }
             }
             const metadataBlob = `${snippet.id}/metadata`;
             const metadataBlobClient = containerClient.getBlockBlobClient(metadataBlob);
@@ -74,6 +78,7 @@ const AzureBlobStorageService = (): SnippetStorageService => {
                     version: version.toString(),
                 });
             }
+            console.log("Saved snippet", snippet.id, snippet.version);
         },
     };
     return service;

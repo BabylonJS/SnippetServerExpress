@@ -58,7 +58,15 @@ export const createSnippet = async (req: Request, res: Response): Promise<void> 
         }
     }
     // get the next version of the main data layer
-    const version = await layers[0].getNextVersion(id);
+    if (req.query.version) {
+        // a version was provided, check if the update key was provided a well
+        if (!req.query.updateKey || (req.query.updateKey as string) !== process.env.UPDATE_KEY) {
+            res.status(400).send("updateKey is required when providing a version");
+            return;
+        }
+    }
+    const version = +(req.query.version as string) ?? (await layers[0].getNextVersion(id));
+    console.log("Creating snippet", id, version, snippetRequest.date);
     const snippetResult: Snippet = {
         id,
         version,
@@ -68,14 +76,19 @@ export const createSnippet = async (req: Request, res: Response): Promise<void> 
         snippetIdentifier: `${id}-${version}`,
         tags: snippetRequest.tags,
         metadata: snippetRequest.metadata,
-        date: new Date().toISOString(),
+        date: snippetRequest.date ?? new Date().toISOString(),
     };
 
     for (const dataLayer of layers) {
         try {
             if (dataLayer.processSnippet) {
-                const processed = dataLayer.processSnippet(snippetResult);
-                await dataLayer.saveSnippet(processed);
+                try {
+                    const processed = dataLayer.processSnippet(snippetResult);
+                    await dataLayer.saveSnippet(processed, req.query.version ? true : false);
+                } catch (e) {
+                    console.log("Error processing snippet on data layer " + layers.indexOf(dataLayer));
+                    //no-op - if process snippet fails, do nothing.
+                }
             } else {
                 await dataLayer.saveSnippet(snippetResult);
             }
