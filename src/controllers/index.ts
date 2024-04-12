@@ -65,7 +65,7 @@ export const createSnippet = async (req: Request, res: Response): Promise<void> 
             return;
         }
     }
-    const version = +(req.query.version as string) ?? (await layers[0].getNextVersion(id));
+    const version = req.query.version ? +(req.query.version as string) : await layers[0].getNextVersion(id);
     console.log("Creating snippet", id, version, snippetRequest.date);
     const snippetResult: Snippet = {
         id,
@@ -90,7 +90,7 @@ export const createSnippet = async (req: Request, res: Response): Promise<void> 
                     //no-op - if process snippet fails, do nothing.
                 }
             } else {
-                await dataLayer.saveSnippet(snippetResult);
+                await dataLayer.saveSnippet(snippetResult, req.query.version ? true : false);
             }
         } catch (error) {
             console.log(error);
