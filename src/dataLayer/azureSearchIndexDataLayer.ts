@@ -49,46 +49,55 @@ export async function searchSnippets(query: string) {
 
 async function addSnippetItem(snippet: Snippet) {
     // skip indexing if the snippet is more than 200kb in size
-    if (snippet.jsonPayload.length > (process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE ? +process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE : 200000)) {
+    if (snippet.jsonPayload.length > (process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE ? +process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE : 500000)) {
         console.log("skipping indexing snippet", snippet.id, snippet.version);
         return;
     }
     console.log("indexing snippet", snippet.id, snippet.version);
-    const result = await fetch(getUrl("index"), {
-        // Adding method type
-        method: "POST",
+    let retires = 3;
+    while (retires > 0) {
+        try {
+            const result = await fetch(getUrl("index"), {
+                // Adding method type
+                method: "POST",
 
-        signal: AbortSignal.timeout(4000),
+                signal: AbortSignal.timeout(4000),
 
-        // Adding body or contents to send
-        body: JSON.stringify({
-            // adjust according to the search index!
-            value: [
-                {
-                    "@search.action": "mergeOrUpload",
-                    id: snippet.id,
-                    version: snippet.version,
-                    snippetIdentifier: snippet.snippetIdentifier,
-                    jsonPayload: snippet.jsonPayload,
-                    name: snippet.name,
-                    description: snippet.description,
-                    tags: snippet.tags.split(",").map((tag) => tag.trim()),
-                    date: new Date(snippet.date),
-                    // isWorking: snippet.metadata?.isWorking || false,
-                    // fromDoc: snippet.metadata?.isFromDocs || false,
-                },
-            ],
-        }),
+                // Adding body or contents to send
+                body: JSON.stringify({
+                    // adjust according to the search index!
+                    value: [
+                        {
+                            "@search.action": "mergeOrUpload",
+                            id: snippet.id,
+                            version: snippet.version,
+                            snippetIdentifier: snippet.snippetIdentifier,
+                            jsonPayload: snippet.jsonPayload,
+                            name: snippet.name,
+                            description: snippet.description,
+                            tags: snippet.tags?.split(",").map((tag) => tag.trim()) || [],
+                            date: new Date(snippet.date),
+                            // isWorking: snippet.metadata?.isWorking || false,
+                            // fromDoc: snippet.metadata?.isFromDocs || false,
+                        },
+                    ],
+                }),
 
-        // Adding headers to the request
-        headers,
-    });
+                // Adding headers to the request
+                headers,
+            });
 
-    if (!result.ok) {
-        console.log("Error", await result.text());
-        throw new Error("error indexing snippet");
-    } else {
-        console.log("indexed snippet", snippet.id, snippet.version);
+            if (!result.ok) {
+                console.log("Error", await result.text());
+                throw new Error("error indexing snippet");
+            } else {
+                console.log("indexed snippet", snippet.id, snippet.version);
+                return;
+            }
+        } catch (e) {
+            console.log("Retrying indexing snippet", e);
+            retires--;
+        }
     }
 }
 
