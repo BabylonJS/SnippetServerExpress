@@ -49,11 +49,11 @@ export async function searchSnippets(query: string) {
 
 async function addSnippetItem(snippet: Snippet) {
     // skip indexing if the snippet is more than 200kb in size
-    if (snippet.jsonPayload.length > (process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE ? +process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE : 500000)) {
+    if (snippet.jsonPayload.length > (process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE ? +process.env.MAX_SNIPPET_SEARCH_INDEX_SIZE : 300000)) {
         console.log("skipping indexing snippet", snippet.id, snippet.version);
         return;
     }
-    console.log("indexing snippet", snippet.id, snippet.version);
+    console.log("indexing snippet", snippet.id, snippet.version, snippet.jsonPayload.length);
     let retires = 3;
     while (retires > 0) {
         try {
@@ -233,7 +233,9 @@ const processJsonPayload = (jsonPayload: string) => {
             processed = processed.replace(/([a-zA-Z])\.([a-zA-Z])/gm, "$1 $2");
             updated[key] = processed;
         });
-        return JSON.stringify(updated);
+
+        const str = JSON.stringify(updated);
+        return str;
     } catch (e) {
         throw new Error("error parsing json, skipping");
     }
