@@ -25,26 +25,36 @@ const headers: HeadersInit = {
     "api-key": sek,
 };
 
-export async function searchSnippets(query: string) {
-    const result = await fetch(getUrl("search"), {
-        // Adding method type
-        method: "POST",
+export async function searchSnippets(query: string, searchType: "code" | "name" | "description" | "all" = "all") {
+    const searchFields = searchType === "all" ? "" : "code" ? "jsonPayload" : searchType;
+    try {
+        const result = await fetch(getUrl("search"), {
+            // Adding method type
+            method: "POST",
 
-        // Adding body or contents to send
-        body: JSON.stringify({
-            search: query,
-            queryType: "full",
-        }),
+            // Adding body or contents to send
+            body: JSON.stringify({
+                search: query,
+                top: 200,
+                searchFields,
+                // groupBy: ["snippetIdentifier"],
+                // queryType: "full",
+                facets: ["snippetIdentifier,count:10"],
+            }),
 
-        // Adding headers to the request
-        headers,
-    });
+            // Adding headers to the request
+            headers,
+        });
 
-    if (!result.ok) {
-        console.log(await result.json());
+        if (!result.ok) {
+            console.log(await result.json());
+            throw new Error("error searching snippets");
+        }
+        return await result.json();
+    } catch (e) {
+        console.log("error searching snippets", e);
         throw new Error("error searching snippets");
     }
-    return await result.json();
 }
 
 async function addSnippetItem(snippet: Snippet) {
