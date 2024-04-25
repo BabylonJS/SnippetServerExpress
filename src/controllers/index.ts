@@ -4,17 +4,23 @@ import { Snippet, SnippetRequest } from "../dataLayer/interfaces";
 
 export const getSnippet = async (req: Request, res: Response): Promise<void> => {
     const layers = getDataLayers;
-    if (layers.length === 0) {
+    if (!layers || layers.length === 0) {
         res.status(500).send("No data layers available");
         return;
     }
-    const version = req.params.version ? +req.params.version : 0;
+    let version = req.params.version ? +req.params.version : 0;
     let resolved = false;
+    const id = req.params.id.toUpperCase();
+    if (req.params.version === "latest") {
+        // get the latest version
+        const latestVersion = await layers[0].getNextVersion(id);
+        version = latestVersion - 1;
+    }
     // make sure we for-each async sequentially
     await layers.reduce(async (previousPromise, layer) => {
         await previousPromise;
         try {
-            const snippet = await layer.getSnippet(req.params.id, version);
+            const snippet = await layer.getSnippet(id, version);
             if (snippet && !resolved) {
                 res.json(snippet);
                 resolved = true;
