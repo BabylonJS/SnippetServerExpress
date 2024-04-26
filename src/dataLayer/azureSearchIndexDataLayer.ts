@@ -25,7 +25,7 @@ const headers: HeadersInit = {
     "api-key": sek,
 };
 
-export async function searchSnippets(query: string, searchType: "code" | "name" | "description" | "all" = "all") {
+export async function searchSnippets(query: string, searchType: "code" | "name" | "tags" | "description" | "all" = "all", page = 0) {
     const searchFields = searchType === "all" ? "" : "code" ? "jsonPayload" : searchType;
     try {
         const result = await fetch(getUrl("search"), {
@@ -35,10 +35,9 @@ export async function searchSnippets(query: string, searchType: "code" | "name" 
             // Adding body or contents to send
             body: JSON.stringify({
                 search: query,
-                top: 200,
+                top: 100,
                 searchFields,
-                // groupBy: ["snippetIdentifier"],
-                // queryType: "full",
+                skip: page * 100,
                 facets: ["snippetIdentifier,count:10"],
             }),
 

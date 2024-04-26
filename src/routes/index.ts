@@ -4,14 +4,13 @@ import { searchSnippets } from "../dataLayer/azureSearchIndexDataLayer";
 
 export const index = Router();
 
-index.get("/search", async (req, res) => {
+index.get("/search/:type", async (req, res) => {
     if (!req.query.query || typeof req.query.query !== "string") {
         res.status(400).send("missing query");
         return;
     }
-    console.log("searching for " + req.query.query);
     try {
-        const result = await searchSnippets(req.query.query);
+        const result = await searchSnippets(req.query.query, req.params.type as "all" | "code" | "name" | "tags" | "description", req.query.page ? +req.query.page : 0);
         res.json(result);
     } catch (e) {
         console.log(e);
