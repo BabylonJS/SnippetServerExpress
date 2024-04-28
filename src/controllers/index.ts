@@ -43,7 +43,7 @@ export const createSnippet = async (req: Request, res: Response): Promise<void> 
         return;
     }
     const snippetRequest: SnippetRequest = req.body;
-    let id = req.params.id || snippetRequest.id || generateSnippetId();
+    let id = (req.params.id || snippetRequest.id || generateSnippetId()).toUpperCase();
     // is snippet was generated, check it does not already exist!
     if (!(req.params.id || snippetRequest.id)) {
         // use main layer
