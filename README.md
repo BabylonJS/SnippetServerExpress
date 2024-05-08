@@ -1,22 +1,18 @@
 # Babylon.js Snippet Server
 
-This is the implementation used by Babylon's snippet server.
+This is the implementation used by Babylon’s snippet server. It is an Express.js implementation written in TypeScript.
 
-It is an Express.js implementation, written in TypeScript.
+## Why is it needed?
 
-## Why is it needed
-
-Babylon allows you as a developer to replace the snippet server that is used in your implementation. 
-If, for example, you want to deploy your own version of the NME, NGE, Playground or the GUI Editor, you are able to change the snippet base URL.
-Using this implementation you will be able to deploy your own version of the snippet server as well, and keep your snippets out of the public snippet repository.
+Babylon allows you, as a developer, to replace the snippet server that is used in your implementation. For example, if you want to deploy your own version of the NME, NGE, Playground, or the GUI Editor, you can change the snippet base URL. Using this implementation, you will be able to deploy your own version of the snippet server and keep your snippets out of the public snippet repository.
 
 So, if you:
 
-- Don't want others to find your playground snippets
-- Keep your code snippets secure and internal
-- Don't want to depend on Babylon's infrastructure
+- Don’t want others to find your playground snippets
+- Want to keep your code snippets secure and internal
+- Prefer not to depend on Babylon’s infrastructure
 
-this implementation is for you!
+this implementation is for you! 😊
 
 ## How to prepare
 
