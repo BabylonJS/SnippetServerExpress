@@ -33,6 +33,7 @@ PORT=3000 ## The port number to use when starting the server
 STORAGE_TYPE=fileSystem ## The default data layer
 CREATE_DATA_LAYERS ## If provided, this comma-separated value will register these as the create layer(s). For example: "inMemory,fileSystem"
 GET_DATA_LAYERS ## If provided, this comma-separated value will register these as the getter layer(s). For example: "inMemory"
+FILE_SYSTEM_DIRECTORY="./data" ## if using file system, where should the snippets be saved.
 AZURE_STORAGE_ACCOUNT_NAME ## The azure storage account name
 AZURE_STORAGE_CONTAINER_NAME=snippets ## the name of the container in the blob storage
 AZURE_STORAGE_ACCOUNT_KEY ## the key to use to log in to the azure storage account
