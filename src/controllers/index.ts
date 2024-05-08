@@ -4,12 +4,15 @@ import { Snippet, SnippetRequest } from "../dataLayer/interfaces";
 
 export const getSnippet = async (req: Request, res: Response): Promise<void> => {
     const layers = getDataLayers;
+    // check if we have any data layers
     if (!layers || layers.length === 0) {
         res.status(500).send("No data layers available");
         return;
     }
+    // get the version of the snippet
     let version = req.params.version ? +req.params.version : 0;
     let resolved = false;
+    // get the snippet id, to upper case
     const id = req.params.id.toUpperCase();
     if (req.params.version === "latest") {
         // get the latest version
@@ -22,6 +25,7 @@ export const getSnippet = async (req: Request, res: Response): Promise<void> => 
         try {
             const snippet = await layer.getSnippet(id, version);
             if (snippet && !resolved) {
+                // snippet found, no need to continue searching in the next layers
                 res.json(snippet);
                 resolved = true;
             }
@@ -38,11 +42,13 @@ export const getSnippet = async (req: Request, res: Response): Promise<void> => 
 export const createSnippet = async (req: Request, res: Response): Promise<void> => {
     const layers = createDataLayers;
 
+    // check if we have any data layers
     if (layers.length === 0) {
         res.status(500).send("No data layers available");
         return;
     }
     const snippetRequest: SnippetRequest = req.body;
+    // get or generate the ID
     let id = (req.params.id || snippetRequest.id || generateSnippetId()).toUpperCase();
     // is snippet was generated, check it does not already exist!
     if (!(req.params.id || snippetRequest.id)) {
@@ -88,14 +94,17 @@ export const createSnippet = async (req: Request, res: Response): Promise<void> 
     for (const dataLayer of layers) {
         try {
             if (dataLayer.processSnippet) {
+                // process the snippet, if the data layer supports it
                 try {
                     const processed = dataLayer.processSnippet(snippetResult);
+                    // save the processed snippet
                     await dataLayer.saveSnippet(processed, req.query.version ? true : false);
                 } catch (e) {
                     console.log("Error processing snippet on data layer " + layers.indexOf(dataLayer));
                     //no-op - if process snippet fails, do nothing.
                 }
             } else {
+                // save the snippet
                 await dataLayer.saveSnippet(snippetResult, req.query.version ? true : false);
             }
         } catch (error) {

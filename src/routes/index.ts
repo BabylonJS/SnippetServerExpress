@@ -4,6 +4,8 @@ import { searchSnippets } from "../dataLayer/azureSearchIndexDataLayer";
 
 export const index = Router();
 
+// search for snippets, using the azure search index directly.
+// TODO - abstract this as well, to allow implementing search in other layers
 index.get("/search/:type", async (req, res) => {
     if (!req.query.query || typeof req.query.query !== "string") {
         res.status(400).send("missing query");

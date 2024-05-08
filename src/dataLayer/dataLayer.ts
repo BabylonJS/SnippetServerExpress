@@ -7,6 +7,11 @@ import inMemoryStorageService from "./inMemoryDataLayer";
 import azureSearchIndexDataLayer from "./azureSearchIndexDataLayer";
 dotenv.config();
 
+/**
+ * Get the data layer to use
+ * @param dataLayer the type of data layer to use. defaults to fileSystem
+ * @returns the constructed data layer
+ */
 function getDataLayer(dataLayer: string = process.env.STORAGE_TYPE || "fileSystem") {
     console.log("Data layer init", dataLayer);
     switch (dataLayer) {
@@ -47,6 +52,7 @@ export const populateDataLayers = () => {
             getDataLayers.push(layer);
         }
     }
+    // if no data layers are defined, use the default
     if (createDataLayers.length === 0 || getDataLayers.length === 0) {
         console.log("No data layers defined, using default");
         const dataLayer = getDataLayer();
