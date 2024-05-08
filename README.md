@@ -59,5 +59,5 @@ The last 2 are used in our snippet server.
 
 ## Run the server
 
-Run `npm install`
-Run `npm start` to start the server or `npm run watch` to run the server in watch mode
+- Run `npm install`
+- Run `npm start` to start the server or `npm run watch` to run the server in watch mode
