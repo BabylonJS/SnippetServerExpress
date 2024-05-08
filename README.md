@@ -1,6 +1,6 @@
 # Babylon.js Snippet Server
 
-This the implementation used by Babylon's snippet server.
+This is the implementation used by Babylon's snippet server.
 
 It is an Express.js implementation, written in TypeScript.
 
