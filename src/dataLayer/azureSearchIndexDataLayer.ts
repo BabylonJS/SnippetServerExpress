@@ -26,7 +26,7 @@ const headers: HeadersInit = {
 };
 
 export async function searchSnippets(query: string, searchType: "code" | "name" | "tags" | "description" | "all" = "all", page = 0) {
-    const searchFields = searchType === "all" ? "" : "code" ? "jsonPayload" : searchType;
+    const searchFields = searchType === "all" ? "" : searchType === "code" ? "jsonPayload" : searchType === "name" ? "name, description" : searchType;
     try {
         const result = await fetch(getUrl("search"), {
             // Adding method type
