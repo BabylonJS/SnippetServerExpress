@@ -1,5 +1,7 @@
+import { AzureCliCredential, ManagedIdentityCredential } from "@azure/identity";
 import type { SnippetStorageService, Snippet } from "./interfaces";
-import { BlobServiceClient, StorageSharedKeyCredential } from "@azure/storage-blob";
+import { BlobServiceClient } from "@azure/storage-blob";
+const useManagedIdentity = process.env.PRODUCTION === "true";
 // this is a singleton that is created once and used throughout the application
 const AzureBlobStorageService = (): SnippetStorageService => {
     console.log("Azure Blob storage init");
@@ -9,7 +11,7 @@ const AzureBlobStorageService = (): SnippetStorageService => {
 
     const blobServiceClient = new BlobServiceClient(
         `https://${accountName}.blob.core.windows.net`,
-        new StorageSharedKeyCredential(accountName, process.env.AZURE_STORAGE_ACCOUNT_KEY || "")
+        !useManagedIdentity ? new AzureCliCredential() : new ManagedIdentityCredential()
     );
 
     const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "snippets";
@@ -56,6 +58,7 @@ const AzureBlobStorageService = (): SnippetStorageService => {
             } else {
                 if (update) {
                     console.log("Snippet already exists");
+                    await blockBlobClient.upload(snippetAsString, snippetAsString.length);
                 } else {
                     throw Error("Snippet already exists");
                 }
