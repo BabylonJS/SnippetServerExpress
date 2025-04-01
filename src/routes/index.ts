@@ -30,3 +30,7 @@ index.get("/:id", controller.getSnippet);
 index.post("/", controller.createSnippet);
 // create a new version of a snippet
 index.post("/:id", controller.createSnippet);
+
+index.get("/", (_req, res) => {
+    res.status(200).send("Nothing to see here, move along!");
+});
